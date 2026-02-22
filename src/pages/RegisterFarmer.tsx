@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const RegisterFarmer: React.FC = () => {
   return (
@@ -7,17 +8,17 @@ const RegisterFarmer: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 md:px-10 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
+            <Link className="flex items-center gap-3" to="/dashboard">
               <div className="bg-primary p-1.5 rounded-lg text-white">
                 <span className="material-symbols-outlined text-2xl">agriculture</span>
               </div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">AgroAdmin <span className="text-primary">Nigeria</span></h1>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <a className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Dashboard</a>
-              <a className="text-sm font-semibold text-primary" href="#">Farmers</a>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" to="/dashboard">Dashboard</Link>
+              <Link className="text-sm font-semibold text-primary" to="/manage-farmers">Farmers</Link>
               <a className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Farms</a>
-              <a className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" href="#">Reports</a>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors" to="/reports">Reports</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">

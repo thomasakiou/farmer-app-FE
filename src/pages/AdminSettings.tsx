@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const AdminSettings: React.FC = () => {
   return (
@@ -6,12 +7,12 @@ const AdminSettings: React.FC = () => {
       {/* Top Navigation Bar */}
       <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-slate-200 dark:border-slate-800 bg-white dark:bg-background-dark px-10 py-3 sticky top-0 z-50">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3 text-primary">
+          <Link className="flex items-center gap-3 text-primary" to="/dashboard">
             <div className="size-8 bg-primary/20 rounded-lg flex items-center justify-center">
               <span className="material-symbols-outlined text-primary">agriculture</span>
             </div>
             <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">National Farmer Registry</h2>
-          </div>
+          </Link>
           <div className="hidden md:flex flex-col min-w-64">
             <div className="flex w-full items-stretch rounded-lg h-10 bg-slate-100 dark:bg-slate-800">
               <div className="text-slate-500 flex items-center justify-center pl-4">
@@ -23,10 +24,10 @@ const AdminSettings: React.FC = () => {
         </div>
         <div className="flex items-center gap-6">
           <nav className="hidden lg:flex items-center gap-8">
-            <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
-            <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Farmers</a>
-            <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Reports</a>
-            <a className="text-primary text-sm font-bold border-b-2 border-primary py-4" href="#">Settings</a>
+            <Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="/dashboard">Dashboard</Link>
+            <Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="/manage-farmers">Farmers</Link>
+            <Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="/reports">Reports</Link>
+            <Link className="text-primary text-sm font-bold border-b-2 border-primary py-4" to="/admin-settings">Settings</Link>
           </nav>
           <div className="flex gap-2">
             <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 transition-colors">

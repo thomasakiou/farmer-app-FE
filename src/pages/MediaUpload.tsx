@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const MediaUpload: React.FC = () => {
   return (
@@ -7,17 +8,17 @@ const MediaUpload: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-primary/10 px-6 lg:px-20 py-3">
         <div className="max-w-[1200px] mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3 text-primary">
+            <Link className="flex items-center gap-3 text-primary" to="/dashboard">
               <div className="size-8 bg-primary/10 rounded-lg flex items-center justify-center">
                 <span className="material-symbols-outlined text-primary">agriculture</span>
               </div>
               <h2 className="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight tracking-tight">Nigerian Farmer Admin</h2>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Dashboard</a>
-              <a className="text-primary text-sm font-semibold border-b-2 border-primary pb-1" href="#">Farmers</a>
+              <Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="/dashboard">Dashboard</Link>
+              <Link className="text-primary text-sm font-semibold border-b-2 border-primary pb-1" to="/manage-farmers">Farmers</Link>
               <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Media Library</a>
-              <a className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" href="#">Reports</a>
+              <Link className="text-slate-600 dark:text-slate-400 text-sm font-medium hover:text-primary transition-colors" to="/reports">Reports</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">

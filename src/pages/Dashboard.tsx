@@ -1,49 +1,63 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // In a real app, you would clear auth state here
+    navigate('/login');
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 font-display flex h-screen overflow-hidden">
       {/* Sidebar Navigation */}
       <aside className="w-64 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0">
         <div className="p-6 flex items-center gap-3">
-          <div className="size-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
-            <span className="material-symbols-outlined text-3xl">agriculture</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight">Farmer Registry</h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Federal Ministry Admin</p>
-          </div>
+          <Link className="flex items-center gap-3" to="/dashboard">
+            <div className="size-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-3xl">agriculture</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-tight">Farmer Registry</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Federal Ministry Admin</p>
+            </div>
+          </Link>
         </div>
         <nav className="flex-1 px-4 space-y-1 mt-4">
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold" href="#">
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold" to="/dashboard">
             <span className="material-symbols-outlined">dashboard</span>
-            <span class="text-sm">Dashboard</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+            <span className="text-sm">Dashboard</span>
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/register-farmer">
             <span className="material-symbols-outlined">person_add</span>
-            <span class="text-sm">Register Farmer</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+            <span className="text-sm">Register Farmer</span>
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/manage-farmers">
             <span className="material-symbols-outlined">groups</span>
-            <span class="text-sm">Manage Farmers</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+            <span className="text-sm">Manage Farmers</span>
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/reports">
             <span className="material-symbols-outlined">bar_chart</span>
-            <span class="text-sm">Reports & Analytics</span>
-          </a>
+            <span className="text-sm">Reports & Analytics</span>
+          </Link>
           <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
             <span className="material-symbols-outlined">map</span>
-            <span class="text-sm">GIS Mapping</span>
+            <span className="text-sm">GIS Mapping</span>
           </a>
         </nav>
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <a className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="#">
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/admin-settings">
             <span className="material-symbols-outlined">settings</span>
-            <span class="text-sm">Settings</span>
-          </a>
-          <button className="w-full mt-4 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm">
+            <span className="text-sm">Settings</span>
+          </Link>
+          <Link className="w-full mt-4 flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-white font-bold py-2.5 px-4 rounded-lg transition-all shadow-sm" to="/register-farmer">
             <span className="material-symbols-outlined text-sm">add</span>
-            <span class="text-sm">New Registration</span>
+            <span className="text-sm">New Registration</span>
+          </Link>
+          <button className="w-full mt-2 flex items-center justify-center gap-2 text-slate-500 hover:text-red-500 text-sm font-semibold py-2 transition-colors" onClick={handleLogout}>
+            <span className="material-symbols-outlined text-sm">logout</span>
+            Logout
           </button>
         </div>
       </aside>
@@ -232,7 +246,7 @@ const Dashboard: React.FC = () => {
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <h4 className="font-bold text-lg">Recent Farmer Registrations</h4>
-              <button className="text-primary text-sm font-bold hover:underline">View All Records</button>
+              <Link className="text-primary text-sm font-bold hover:underline" to="/manage-farmers">View All Records</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-left">
@@ -266,9 +280,9 @@ const Dashboard: React.FC = () => {
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">Verified</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Link className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors inline-block" to="/farmer-profile">
                         <span className="material-symbols-outlined text-slate-400">visibility</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -290,9 +304,9 @@ const Dashboard: React.FC = () => {
                       <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs font-bold">Pending</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Link className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors inline-block" to="/farmer-profile">
                         <span className="material-symbols-outlined text-slate-400">visibility</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -314,9 +328,9 @@ const Dashboard: React.FC = () => {
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">Verified</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Link className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors inline-block" to="/farmer-profile">
                         <span className="material-symbols-outlined text-slate-400">visibility</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                   <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
@@ -338,9 +352,9 @@ const Dashboard: React.FC = () => {
                       <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 text-xs font-bold">Verified</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                      <Link className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors inline-block" to="/farmer-profile">
                         <span className="material-symbols-outlined text-slate-400">visibility</span>
-                      </button>
+                      </Link>
                     </td>
                   </tr>
                 </tbody>

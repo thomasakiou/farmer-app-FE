@@ -1,40 +1,50 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ManageFarmers: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // In a real app, you would clear auth state here
+    navigate('/login');
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased flex h-screen overflow-hidden">
       {/* Sidebar Navigation */}
       <aside className="w-64 flex flex-col bg-white dark:bg-background-dark border-r border-primary/10">
         <div className="p-6 flex items-center gap-3">
-          <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
-            <span className="material-symbols-outlined text-2xl">agriculture</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight">AgroAdmin</h1>
-            <p className="text-xs text-primary font-medium uppercase tracking-wider">Nigeria Registry</p>
-          </div>
+          <Link className="flex items-center gap-3" to="/dashboard">
+            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
+              <span className="material-symbols-outlined text-2xl">agriculture</span>
+            </div>
+            <div>
+              <h1 className="text-lg font-bold leading-tight">AgroAdmin</h1>
+              <p className="text-xs text-primary font-medium uppercase tracking-wider">Nigeria Registry</p>
+            </div>
+          </Link>
         </div>
         <nav className="flex-1 px-4 py-4 space-y-1">
-          <a className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" href="#">
+          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/dashboard">
             <span className="material-symbols-outlined">dashboard</span>
             <span className="text-sm font-medium">Dashboard</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors" href="#">
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors" to="/manage-farmers">
             <span className="material-symbols-outlined">group</span>
             <span className="text-sm font-medium">Farmers</span>
-          </a>
+          </Link>
           <a className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" href="#">
             <span className="material-symbols-outlined">map</span>
             <span className="text-sm font-medium">Farm Mapping</span>
           </a>
-          <a className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" href="#">
+          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/reports">
             <span className="material-symbols-outlined">analytics</span>
             <span className="text-sm font-medium">Reports</span>
-          </a>
-          <a className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" href="#">
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/admin-settings">
             <span className="material-symbols-outlined">settings</span>
             <span className="text-sm font-medium">Settings</span>
-          </a>
+          </Link>
         </nav>
         <div className="p-4 mt-auto">
           <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
@@ -45,7 +55,7 @@ const ManageFarmers: React.FC = () => {
                 <p className="text-xs text-slate-500 truncate">System Admin</p>
               </div>
             </div>
-            <button className="w-full flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:bg-red-50 py-2 rounded-lg transition-colors">
+            <button className="w-full flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:bg-red-50 py-2 rounded-lg transition-colors" onClick={handleLogout}>
               <span className="material-symbols-outlined text-sm">logout</span>
               Logout
             </button>
@@ -61,10 +71,10 @@ const ManageFarmers: React.FC = () => {
             <h2 className="text-xl font-bold">Manage Farmers</h2>
           </div>
           <div className="flex items-center gap-4">
-            <button className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all">
+            <Link className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all" to="/register-farmer">
               <span className="material-symbols-outlined text-sm">person_add</span>
               Register New Farmer
-            </button>
+            </Link>
           </div>
         </header>
 
@@ -190,9 +200,9 @@ const ManageFarmers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
                           <span className="material-symbols-outlined text-lg">visibility</span>
-                        </button>
+                        </Link>
                         <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>
@@ -224,9 +234,9 @@ const ManageFarmers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
                           <span className="material-symbols-outlined text-lg">visibility</span>
-                        </button>
+                        </Link>
                         <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>
@@ -258,9 +268,9 @@ const ManageFarmers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
                           <span className="material-symbols-outlined text-lg">visibility</span>
-                        </button>
+                        </Link>
                         <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>
@@ -292,9 +302,9 @@ const ManageFarmers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
                           <span className="material-symbols-outlined text-lg">visibility</span>
-                        </button>
+                        </Link>
                         <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>
@@ -326,9 +336,9 @@ const ManageFarmers: React.FC = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-1.5 text-slate-400 hover:text-primary transition-colors">
+                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
                           <span className="material-symbols-outlined text-lg">visibility</span>
-                        </button>
+                        </Link>
                         <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
                           <span className="material-symbols-outlined text-lg">edit</span>
                         </button>

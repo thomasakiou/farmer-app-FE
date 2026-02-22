@@ -1,6 +1,15 @@
 import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    // In a real app, you would validate credentials here
+    navigate('/dashboard');
+  };
+
   return (
     <div className="bg-background-light dark:bg-background-dark min-h-screen flex flex-col font-display text-slate-900 dark:text-slate-100">
       {/* Top Navigation Bar Component */}
@@ -14,12 +23,12 @@ const Login: React.FC = () => {
               <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">National Farmer Registry</h1>
             </div>
             <div className="hidden md:flex items-center gap-8">
-              <a className="text-sm font-medium hover:text-primary transition-colors" href="#">Home</a>
+              <Link className="text-sm font-medium hover:text-primary transition-colors" to="/">Home</Link>
               <a className="text-sm font-medium hover:text-primary transition-colors" href="#">Resources</a>
               <a className="text-sm font-medium hover:text-primary transition-colors" href="#">Support</a>
-              <button className="bg-primary hover:bg-primary/90 text-slate-900 px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-sm">
+              <Link className="bg-primary hover:bg-primary/90 text-slate-900 px-5 py-2 rounded-lg text-sm font-bold transition-all shadow-sm" to="/register-farmer">
                 Register
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -79,7 +88,7 @@ const Login: React.FC = () => {
             </div>
 
             {/* Form Fields */}
-            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="space-y-5" onSubmit={handleLogin}>
               <div>
                 <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Email Address or Phone Number</label>
                 <div className="relative">
@@ -113,7 +122,7 @@ const Login: React.FC = () => {
             <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 flex flex-col items-center gap-4">
               <p className="text-sm text-slate-500 dark:text-slate-400">
                 Not registered yet?
-                <a className="text-primary font-bold hover:underline ml-1" href="#">Create an account</a>
+                <Link className="text-primary font-bold hover:underline ml-1" to="/register-farmer">Create an account</Link>
               </p>
               <div className="flex items-center gap-2 text-xs text-slate-400">
                 <span className="material-symbols-outlined text-sm">verified_user</span>

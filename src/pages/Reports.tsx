@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Reports: React.FC = () => {
   return (
@@ -7,15 +8,15 @@ const Reports: React.FC = () => {
       <header className="bg-white dark:bg-background-dark border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-2">
+            <Link className="flex items-center gap-2" to="/dashboard">
               <div className="size-8 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
                 <span className="material-symbols-outlined text-xl">agriculture</span>
               </div>
               <h1 className="text-lg font-bold tracking-tight text-slate-900 dark:text-slate-100">National Farmer Registry</h1>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Dashboard</a>
-              <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Farmer Database</a>
+              <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/dashboard">Dashboard</Link>
+              <Link className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" to="/manage-farmers">Farmer Database</Link>
               <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Subsidies</a>
               <a className="text-sm font-medium text-slate-500 hover:text-primary transition-colors" href="#">Resources</a>
             </nav>

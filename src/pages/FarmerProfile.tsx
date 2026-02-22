@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const FarmerProfile: React.FC = () => {
   return (
@@ -7,17 +8,17 @@ const FarmerProfile: React.FC = () => {
       <header className="sticky top-0 z-50 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 lg:px-20 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <div className="flex items-center gap-3">
+            <Link className="flex items-center gap-3" to="/dashboard">
               <div className="bg-primary p-1.5 rounded-lg text-white">
                 <span className="material-symbols-outlined block">agriculture</span>
               </div>
               <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">AgroAdmin<span className="text-primary">NG</span></h2>
-            </div>
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <a className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Dashboard</a>
-              <a className="text-sm font-semibold text-primary" href="#">Farmers</a>
-              <a className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Reports</a>
-              <a className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" href="#">Settings</a>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" to="/dashboard">Dashboard</Link>
+              <Link className="text-sm font-semibold text-primary" to="/manage-farmers">Farmers</Link>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" to="/reports">Reports</Link>
+              <Link className="text-sm font-semibold text-slate-600 dark:text-slate-400 hover:text-primary transition-colors" to="/admin-settings">Settings</Link>
             </nav>
           </div>
           <div className="flex items-center gap-4">
