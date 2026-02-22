@@ -58,6 +58,12 @@ class ApiService {
             headers,
         });
 
+        if (response.status === 401) {
+            this.logout();
+            window.location.href = '/login';
+            throw new Error('Session expired. Please log in again.');
+        }
+
         if (!response.ok) {
             const error = await response.json().catch(() => ({ detail: 'An error occurred' }));
             throw new Error(error.detail || response.statusText);
@@ -126,6 +132,13 @@ class ApiService {
             },
             body: formData,
         });
+
+        if (response.status === 401) {
+            this.logout();
+            window.location.href = '/login';
+            throw new Error('Session expired. Please log in again.');
+        }
+
         if (!response.ok) throw new Error('Upload failed');
         return response.json();
     }
