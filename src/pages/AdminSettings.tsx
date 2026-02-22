@@ -48,7 +48,7 @@ const AdminSettings: React.FC = () => {
             </div>
             <div>
               <h1 className="text-lg font-bold leading-tight">Farmer Registry</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Federal Ministry Admin</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Southern Ijaw LGA Fermers Register</p>
             </div>
           </Link>
           <button
