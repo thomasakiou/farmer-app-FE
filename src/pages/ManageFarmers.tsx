@@ -1,369 +1,349 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { api, FarmerOut } from '../services/api';
 
 const ManageFarmers: React.FC = () => {
   const navigate = useNavigate();
+  const [farmers, setFarmers] = useState<FarmerOut[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedFarmers, setSelectedFarmers] = useState<number[]>([]);
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [stateFilter, setStateFilter] = useState('Bayelsa State');
+  const [statusFilter, setStatusFilter] = useState('All Status');
+
+  useEffect(() => {
+    const fetchFarmers = async () => {
+      try {
+        const data = await api.getFarmers();
+        setFarmers(data);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch farmers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFarmers();
+  }, []);
 
   const handleLogout = () => {
-    // In a real app, you would clear auth state here
+    api.logout();
     navigate('/login');
   };
 
+  const filteredFarmers = farmers.filter(f => {
+    const matchesSearch = f.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.nin.includes(searchQuery);
+    const matchesState = stateFilter === 'All States' || f.farm_state === stateFilter;
+    const matchesStatus = statusFilter === 'All Status' || f.farmer_status === statusFilter.toLowerCase();
+
+    return matchesSearch && matchesState && matchesStatus;
+  });
+
+  const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.checked) {
+      setSelectedFarmers(filteredFarmers.map(f => f.id));
+    } else {
+      setSelectedFarmers([]);
+    }
+  };
+
+  const handleSelectOne = (e: React.ChangeEvent<HTMLInputElement>, id: number) => {
+    if (e.target.checked) {
+      setSelectedFarmers(prev => [...prev, id]);
+    } else {
+      setSelectedFarmers(prev => prev.filter(i => i !== id));
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedFarmers.length === 0 || !window.confirm(`Are you sure you want to delete ${selectedFarmers.length} selected farmers?`)) return;
+
+    setIsDeletingBulk(true);
+    try {
+      await Promise.all(selectedFarmers.map(id => api.deleteFarmer(id)));
+      // Refetch
+      const data = await api.getFarmers();
+      setFarmers(data);
+      setSelectedFarmers([]);
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete some or all selected farmers.');
+    } finally {
+      setIsDeletingBulk(false);
+    }
+  };
+
+  const stats = {
+    total: farmers.length,
+    verified: farmers.filter(f => f.farmer_status === 'approved').length,
+    pending: farmers.filter(f => f.farmer_status === 'pending').length
+  };
+
+  const uniqueStates = Array.from(new Set(farmers.map(f => f.farm_state))).sort();
+
   return (
     <div className="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 antialiased flex h-screen overflow-hidden">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-64 flex flex-col bg-white dark:bg-background-dark border-r border-primary/10">
-        <div className="p-6 flex items-center gap-3">
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shrink-0 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-6 flex items-center justify-between gap-3">
           <Link className="flex items-center gap-3" to="/dashboard">
-            <div className="size-10 bg-primary rounded-lg flex items-center justify-center text-white">
-              <span className="material-symbols-outlined text-2xl">agriculture</span>
+            <div className="size-10 bg-primary/20 rounded-lg flex items-center justify-center text-primary">
+              <span className="material-symbols-outlined text-3xl">agriculture</span>
             </div>
             <div>
-              <h1 className="text-lg font-bold leading-tight">AgroAdmin</h1>
-              <p className="text-xs text-primary font-medium uppercase tracking-wider">Nigeria Registry</p>
+              <h1 className="text-lg font-bold leading-tight">Farmer Registry</h1>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Federal Ministry Admin</p>
             </div>
           </Link>
+          <button
+            className="lg:hidden p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
-        <nav className="flex-1 px-4 py-4 space-y-1">
-          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/dashboard">
+        <nav className="flex-1 px-4 space-y-1 mt-4">
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/dashboard">
             <span className="material-symbols-outlined">dashboard</span>
-            <span className="text-sm font-medium">Dashboard</span>
+            <span className="text-sm">Dashboard</span>
           </Link>
-          <Link className="flex items-center gap-3 px-3 py-2 bg-primary/10 text-primary rounded-lg transition-colors" to="/manage-farmers">
-            <span className="material-symbols-outlined">group</span>
-            <span className="text-sm font-medium">Farmers</span>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/register-farmer">
+            <span className="material-symbols-outlined">person_add</span>
+            <span className="text-sm">Register Farmer</span>
           </Link>
-          <a className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" href="#">
-            <span className="material-symbols-outlined">map</span>
-            <span className="text-sm font-medium">Farm Mapping</span>
-          </a>
-          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/reports">
-            <span className="material-symbols-outlined">analytics</span>
-            <span className="text-sm font-medium">Reports</span>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold" to="/manage-farmers">
+            <span className="material-symbols-outlined">groups</span>
+            <span className="text-sm">Manage Farmers</span>
           </Link>
-          <Link className="flex items-center gap-3 px-3 py-2 text-slate-600 dark:text-slate-400 hover:bg-primary/5 rounded-lg transition-colors" to="/admin-settings">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="text-sm font-medium">Settings</span>
+          <Link to="/farm-lands" className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <span className="material-symbols-outlined">potted_plant</span>
+            <span className="text-sm">Farm Lands</span>
+          </Link>
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/reports">
+            <span className="material-symbols-outlined">bar_chart</span>
+            <span className="text-sm">Reports & Analytics</span>
           </Link>
         </nav>
-        <div className="p-4 mt-auto">
-          <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="size-10 rounded-full bg-slate-200" data-alt="Admin user profile headshot photo" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuD2dTfl5zs7w1_fwcI4Q3qKZc7E7wtI1Qd4x4ZZqX4Xkqnu_3IkA782mpylUZhm_6x8XlaCjLm8tKA9vWX-ybMeE8Cl-y34eP6invFCqHqfX7WAkF4d0SJf7GNSowUGUERxGQ0c0qlU8Z1daRjN9N5xj62P2bejFbX1uBkr7C-BDYEGLePRn-RjTkhFPsYC_CJ4Ttkz52d2rConZ5uuauoqqCq8NGk8kyB11QaI9lrs1YpOyqaHSptcmhOsPdyloXG-d7uzNUaOZ4A')" }}></div>
-              <div className="overflow-hidden">
-                <p className="text-sm font-bold truncate">Ibrahim Ahmed</p>
-                <p className="text-xs text-slate-500 truncate">System Admin</p>
-              </div>
-            </div>
-            <button className="w-full flex items-center justify-center gap-2 text-xs font-bold text-red-500 hover:bg-red-50 py-2 rounded-lg transition-colors" onClick={handleLogout}>
-              <span className="material-symbols-outlined text-sm">logout</span>
-              Logout
-            </button>
-          </div>
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+          <Link className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" to="/admin-settings">
+            <span className="material-symbols-outlined">settings</span>
+            <span className="text-sm">Settings</span>
+          </Link>
+          <button className="w-full mt-4 flex items-center justify-center gap-2 text-slate-500 hover:text-red-500 text-sm font-semibold py-2 transition-colors" onClick={handleLogout}>
+            <span className="material-symbols-outlined text-sm">logout</span>
+            Logout
+          </button>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="h-16 flex items-center justify-between px-8 bg-white dark:bg-background-dark border-b border-primary/10 shrink-0">
-          <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold">Manage Farmers</h2>
+        <header className="h-16 flex items-center justify-between px-4 lg:px-8 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shrink-0">
+          <div className="flex items-center gap-2 lg:gap-4">
+            <button
+              className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <h2 className="text-lg lg:text-xl font-bold">Manage Farmers</h2>
           </div>
-          <div className="flex items-center gap-4">
-            <Link className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all" to="/register-farmer">
+          <div className="flex items-center gap-2 lg:gap-4">
+            {selectedFarmers.length > 0 && (
+              <button
+                className="flex items-center gap-2 bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-red-500/20 hover:bg-red-600 transition-all disabled:opacity-50"
+                onClick={handleBulkDelete}
+                disabled={isDeletingBulk}
+              >
+                {isDeletingBulk ? (
+                  <span className="animate-spin material-symbols-outlined text-sm">sync</span>
+                ) : (
+                  <span className="material-symbols-outlined text-sm">delete</span>
+                )}
+                <span className="hidden sm:inline">Delete ({selectedFarmers.length})</span>
+                <span className="sm:hidden">Delete</span>
+              </button>
+            )}
+            <Link className="flex items-center gap-2 bg-primary text-slate-900 px-3 lg:px-4 py-2 rounded-lg font-bold text-sm shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all" to="/register-farmer">
               <span className="material-symbols-outlined text-sm">person_add</span>
-              Register New Farmer
+              <span className="hidden sm:inline">Register New Farmer</span>
+              <span className="sm:hidden">Register</span>
             </Link>
           </div>
         </header>
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
+          {error && (
+            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl flex items-center gap-3 text-red-600 dark:text-red-400">
+              <span className="material-symbols-outlined text-xl">error</span>
+              <p className="text-sm font-bold">{error}</p>
+            </div>
+          )}
+
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/10 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-500">Total Farmers</p>
                 <span className="material-symbols-outlined text-primary">groups</span>
               </div>
-              <p className="text-2xl font-black mt-2">12,840</p>
-              <div className="flex items-center gap-1 mt-2">
-                <span className="text-xs font-bold text-primary">+12%</span>
-                <span className="text-xs text-slate-400">vs last month</span>
-              </div>
+              <p className="text-2xl font-black mt-2">{isLoading ? '...' : stats.total.toLocaleString()}</p>
             </div>
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/10 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-500">Verified</p>
-                <span className="material-symbols-outlined text-primary">verified</span>
+                <span className="material-symbols-outlined text-emerald-500">verified</span>
               </div>
-              <p className="text-2xl font-black mt-2">10,502</p>
-              <div className="flex items-center gap-1 mt-2 text-primary font-bold">
-                <span className="text-xs">82% Overall</span>
-              </div>
+              <p className="text-2xl font-black mt-2">{isLoading ? '...' : stats.verified.toLocaleString()}</p>
             </div>
-            <div className="bg-white dark:bg-background-dark p-6 rounded-xl border border-primary/10 shadow-sm">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-medium text-slate-500">Pending Approval</p>
                 <span className="material-symbols-outlined text-amber-500">pending_actions</span>
               </div>
-              <p className="text-2xl font-black mt-2">2,338</p>
-              <div className="flex items-center gap-1 mt-2">
-                <span className="text-xs font-bold text-amber-500">+15%</span>
-                <span className="text-xs text-slate-400">Review required</span>
-              </div>
+              <p className="text-2xl font-black mt-2">{isLoading ? '...' : stats.pending.toLocaleString()}</p>
             </div>
           </div>
 
           {/* Filters & Search */}
-          <div className="bg-white dark:bg-background-dark p-4 rounded-xl border border-primary/10 shadow-sm flex flex-wrap items-center gap-4">
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-wrap items-center gap-4">
             <div className="flex-1 min-w-[300px]">
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
-                <input className="w-full pl-10 pr-4 py-2 bg-background-light dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm" placeholder="Search by Farmer Name or 11-digit NIN..." type="text" />
+                <input
+                  className="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm text-slate-900 dark:text-white"
+                  placeholder="Search by Farmer Name or NIN..."
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="relative">
-                <select className="pl-3 pr-8 py-2 bg-background-light dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm appearance-none min-w-[140px]">
-                  <option>All States</option>
-                  <option>Kano</option>
-                  <option>Lagos</option>
-                  <option>Oyo</option>
-                  <option>Kaduna</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">keyboard_arrow_down</span>
-              </div>
-              <div className="relative">
-                <select className="pl-3 pr-8 py-2 bg-background-light dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm appearance-none min-w-[140px]">
-                  <option>Farm Type</option>
-                  <option>Crop</option>
-                  <option>Livestock</option>
-                  <option>Fishery</option>
-                  <option>Mixed</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">keyboard_arrow_down</span>
-              </div>
-              <div className="relative">
-                <select className="pl-3 pr-8 py-2 bg-background-light dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm appearance-none min-w-[140px]">
-                  <option>Status</option>
-                  <option>Verified</option>
-                  <option>Pending</option>
-                </select>
-                <span className="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-sm">keyboard_arrow_down</span>
-              </div>
-              <button className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">
-                <span className="material-symbols-outlined">filter_list</span>
-              </button>
+              <select
+                className="pl-3 pr-8 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm text-slate-900 dark:text-white"
+                value={stateFilter}
+                onChange={(e) => setStateFilter(e.target.value)}
+              >
+                <option>All States</option>
+                {uniqueStates.map(state => (
+                  <option key={state} value={state}>{state}</option>
+                ))}
+              </select>
+              <select
+                className="pl-3 pr-8 py-2 bg-slate-100 dark:bg-slate-800 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm text-slate-900 dark:text-white"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option>All Status</option>
+                <option>Approved</option>
+                <option>Pending</option>
+              </select>
             </div>
           </div>
 
           {/* Farmer Table */}
-          <div className="bg-white dark:bg-background-dark rounded-xl border border-primary/10 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-primary/5 text-slate-600 dark:text-slate-400">
+                  <tr className="bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400">
+                    <th className="px-6 py-4 w-10">
+                      <input
+                        type="checkbox"
+                        className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary/20 dark:bg-slate-800"
+                        checked={selectedFarmers.length > 0 && selectedFarmers.length === filteredFarmers.length}
+                        onChange={handleSelectAll}
+                      />
+                    </th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Farmer Name</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">State</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">State / LGA</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">NIN</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Farm Type</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Reg. Date</th>
+                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Crop/Type</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Status</th>
                     <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-primary/5">
-                  {/* Row 1 */}
-                  <tr className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">AO</div>
-                        <div>
-                          <p className="text-sm font-bold">Adekunle Olumide</p>
-                          <p className="text-xs text-slate-400">ID: #FR-88902</p>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {isLoading ? (
+                    <tr>
+                      <td className="px-6 py-8 text-center" colSpan={7}>
+                        <div className="flex items-center justify-center gap-2">
+                          <span className="animate-spin material-symbols-outlined text-primary">sync</span>
+                          <span className="text-sm font-medium">Loading farmer records...</span>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">Oyo</td>
-                    <td className="px-6 py-4 text-sm font-mono">1234****901</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold uppercase">Crop</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">Oct 24, 2023</td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 w-fit px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase">
-                        <span className="size-1.5 rounded-full bg-primary"></span>
-                        Verified
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
-                          <span className="material-symbols-outlined text-lg">visibility</span>
-                        </Link>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Row 2 */}
-                  <tr className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-xs">MU</div>
-                        <div>
-                          <p className="text-sm font-bold">Musa Usman</p>
-                          <p className="text-xs text-slate-400">ID: #FR-88903</p>
+                      </td>
+                    </tr>
+                  ) : filteredFarmers.length === 0 ? (
+                    <tr>
+                      <td className="px-6 py-8 text-center text-slate-500" colSpan={7}>No records matching your criteria</td>
+                    </tr>
+                  ) : filteredFarmers.map((farmer) => (
+                    <tr className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group ${selectedFarmers.includes(farmer.id) ? 'bg-primary/5 dark:bg-primary/10' : ''}`} key={farmer.id}>
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary/20 dark:bg-slate-800"
+                          checked={selectedFarmers.includes(farmer.id)}
+                          onChange={(e) => handleSelectOne(e, farmer.id)}
+                        />
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs overflow-hidden">
+                            {farmer.image_url ? (
+                              <img src={farmer.image_url} alt={farmer.full_name} className="w-full h-full object-cover" />
+                            ) : (
+                              farmer.full_name.charAt(0)
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold">{farmer.full_name}</p>
+                            <p className="text-xs text-slate-400">UID: #{farmer.farmer_id}</p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">Kano</td>
-                    <td className="px-6 py-4 text-sm font-mono">5567****332</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold uppercase">Livestock</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">Oct 26, 2023</td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 w-fit px-2.5 py-1 bg-amber-100 text-amber-600 rounded-full text-[10px] font-bold uppercase">
-                        <span className="size-1.5 rounded-full bg-amber-500"></span>
-                        Pending
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
-                          <span className="material-symbols-outlined text-lg">visibility</span>
-                        </Link>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Row 3 */}
-                  <tr className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs">CE</div>
-                        <div>
-                          <p className="text-sm font-bold">Chukwudi Eze</p>
-                          <p className="text-xs text-slate-400">ID: #FR-88904</p>
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium">
+                        {farmer.farm_state}, {farmer.farm_lga}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-mono text-slate-500">{farmer.nin}</td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm">{farmer.crop_type || farmer.livestock_type || 'N/A'}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${farmer.farmer_status === 'approved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' :
+                          farmer.farmer_status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' :
+                            'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
+                          }`}>
+                          {farmer.farmer_status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to={`/farmer-profile/${farmer.id}`}>
+                            <span className="material-symbols-outlined text-lg">visibility</span>
+                          </Link>
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">Enugu</td>
-                    <td className="px-6 py-4 text-sm font-mono">8812****004</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold uppercase">Fishery</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">Nov 01, 2023</td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 w-fit px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase">
-                        <span className="size-1.5 rounded-full bg-primary"></span>
-                        Verified
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
-                          <span className="material-symbols-outlined text-lg">visibility</span>
-                        </Link>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Row 4 */}
-                  <tr className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs">FA</div>
-                        <div>
-                          <p className="text-sm font-bold">Fatima Abubakar</p>
-                          <p className="text-xs text-slate-400">ID: #FR-88905</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">Kaduna</td>
-                    <td className="px-6 py-4 text-sm font-mono">9923****115</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold uppercase">Mixed</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">Nov 03, 2023</td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 w-fit px-2.5 py-1 bg-primary/10 text-primary rounded-full text-[10px] font-bold uppercase">
-                        <span className="size-1.5 rounded-full bg-primary"></span>
-                        Verified
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
-                          <span className="material-symbols-outlined text-lg">visibility</span>
-                        </Link>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {/* Row 5 */}
-                  <tr className="hover:bg-primary/5 transition-colors group">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="size-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-xs">BN</div>
-                        <div>
-                          <p className="text-sm font-bold">Benson Nwachukwu</p>
-                          <p className="text-xs text-slate-400">ID: #FR-88906</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm font-medium">Lagos</td>
-                    <td className="px-6 py-4 text-sm font-mono">2201****778</td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-[10px] font-bold uppercase">Fishery</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-500">Nov 05, 2023</td>
-                    <td className="px-6 py-4">
-                      <span className="flex items-center gap-1.5 w-fit px-2.5 py-1 bg-amber-100 text-amber-600 rounded-full text-[10px] font-bold uppercase">
-                        <span className="size-1.5 rounded-full bg-amber-500"></span>
-                        Pending
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link className="p-1.5 text-slate-400 hover:text-primary transition-colors" to="/farmer-profile">
-                          <span className="material-symbols-outlined text-lg">visibility</span>
-                        </Link>
-                        <button className="p-1.5 text-slate-400 hover:text-slate-900 transition-colors">
-                          <span className="material-symbols-outlined text-lg">edit</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
-            </div>
-            {/* Pagination */}
-            <div className="px-6 py-4 border-t border-primary/5 flex items-center justify-between bg-white dark:bg-background-dark">
-              <p className="text-xs text-slate-500">Showing <span className="font-bold text-slate-900 dark:text-slate-100">1-10</span> of <span className="font-bold text-slate-900 dark:text-slate-100">12,840</span> farmers</p>
-              <div className="flex items-center gap-2">
-                <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50 disabled:opacity-50" disabled>
-                  <span className="material-symbols-outlined text-sm">chevron_left</span>
-                </button>
-                <button className="size-8 flex items-center justify-center bg-primary text-white rounded text-xs font-bold">1</button>
-                <button className="size-8 flex items-center justify-center hover:bg-slate-100 rounded text-xs font-bold">2</button>
-                <button className="size-8 flex items-center justify-center hover:bg-slate-100 rounded text-xs font-bold">3</button>
-                <span className="text-slate-400">...</span>
-                <button className="size-8 flex items-center justify-center hover:bg-slate-100 rounded text-xs font-bold">128</button>
-                <button className="p-2 border border-slate-200 dark:border-slate-700 rounded hover:bg-slate-50">
-                  <span className="material-symbols-outlined text-sm">chevron_right</span>
-                </button>
-              </div>
             </div>
           </div>
         </div>

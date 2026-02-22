@@ -13,6 +13,8 @@ import MediaUpload from './pages/MediaUpload';
 import ManageFarmers from './pages/ManageFarmers';
 import AdminSettings from './pages/AdminSettings';
 import Reports from './pages/Reports';
+import FarmLands from './pages/FarmLands';
+import FarmerDashboard from './pages/FarmerDashboard';
 
 export default function App() {
   return (
@@ -21,10 +23,13 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/farmer-dashboard" element={<FarmerDashboard />} />
         <Route path="/register-farmer" element={<RegisterFarmer />} />
-        <Route path="/farmer-profile" element={<FarmerProfile />} />
+        <Route path="/edit-farmer/:id" element={<RegisterFarmer />} />
+        <Route path="/farmer-profile/:id" element={<FarmerProfile />} />
         <Route path="/media-upload" element={<MediaUpload />} />
         <Route path="/manage-farmers" element={<ManageFarmers />} />
+        <Route path="/farm-lands" element={<FarmLands />} />
         <Route path="/admin-settings" element={<AdminSettings />} />
         <Route path="/reports" element={<Reports />} />
       </Routes>
