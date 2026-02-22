@@ -1,5 +1,5 @@
 /// <reference types="vite/client" />
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const API_URL = import.meta.env.VITE_API_URL || 'https://wiseappsdev.cloud/farmer-app';
 
 export type FarmStatus = 'pending' | 'verified';
 export type FarmerStatus = 'pending' | 'processing' | 'approved' | 'denied';
